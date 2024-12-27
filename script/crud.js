@@ -35,35 +35,41 @@ if (localStorage.product != null) {
 
 submit.onclick = function () {
     let newPro = {
-        title: title.value,
+        title: title.value.toLowerCase(),
         price: +price.value,
         taxes: +taxes.value,
         ads: +ads.value,
         discount: +discount.value,
         total: +total.innerHTML,
         count: +count.value,
-        category: category.value,
+        category: category.value.toLowerCase(),
     }
 
-    if (mood === "create") 
-    {
-        /////////// count ///////////
-        if (newPro.count > 1) {
-            for (let i = 0; i < newPro.count; i++) 
-            {
+
+    if(title.value !=''
+     && price.value !='' 
+     && category.value !=''
+     && count.value < 100)
+     {
+        if (mood === "create") {
+            /////////// count ///////////
+            if (newPro.count > 1) {
+                for (let i = 0; i < newPro.count; i++) {
+                    datapro.push(newPro);
+                }
+    
+            } else {
                 datapro.push(newPro);
             }
-
-        } else 
-        {
-            datapro.push(newPro);
+        } else {
+            datapro[temp] = newPro;
+            mood = "create";
+            submit.innerHTML = "Create";
+            count.style.display = "block";
         }
-    }else{
-        datapro[temp] = newPro;
-        mood = "create";
-        submit.innerHTML = "Create";
-        count.style.display ="block";
-    }
+        clearData();
+     }
+    
 
 
 
@@ -71,7 +77,7 @@ submit.onclick = function () {
     // save products in local storage
     localStorage.product = JSON.stringify(datapro);
 
-    clearData();
+    
     displayProducts();
 
 
@@ -98,7 +104,7 @@ function displayProducts() {
     let table = '';
     for (let i = 0; i < datapro.length; i++) {
         table += ` <tr>
-    <td>${i}</td>
+    <td>${i+1}</td>
     <td>${datapro[i].title}</td>
     <td>${datapro[i].price}</td>
     <td>${datapro[i].taxes}</td>
@@ -122,8 +128,8 @@ function displayProducts() {
     else {
         deleteAll.innerHTML = '';
     }
-   
-    
+
+
 }
 displayProducts();
 
@@ -160,7 +166,55 @@ function updataProduct(i) {
         top: 0,
         behavior: "smooth"
     });
-    
+
 }
 // search
+let searchMood = 'title';
+
+function getSearchMood(id) {
+    let search = document.getElementById('search');
+    if (id == 'searchTitle') {
+        searchMood = 'title';
+
+
+    } else {
+        searchMood = 'category';
+    }
+    search.placeholder = `Search by ${searchMood} `;
+    search.focus();
+    search.value = '';
+    displayProducts();
+}
+
+function searchProduct(value) {
+    let table = '';
+
+    for (let i = 0; i < datapro.length; i++) {
+
+        const shouldInclude = searchMood === 'title'
+            ? datapro[i].title.toLowerCase().includes(value.toLowerCase())
+            : datapro[i].category.toLowerCase().includes(value.toLowerCase());
+
+        if (shouldInclude) {
+            table += `
+        <tr>
+            <td>${i}</td>
+            <td>${datapro[i].title}</td>
+            <td>${datapro[i].price}</td>
+            <td>${datapro[i].taxes}</td>
+            <td>${datapro[i].ads}</td>
+            <td>${datapro[i].discount}</td>
+            <td>${datapro[i].total}</td>
+            <td>${datapro[i].category}</td>
+            <td><button onclick="updataProduct(${i})" id="update">update</button></td>
+            <td><button onclick="deleteProduct(${i})" id="delete">delete</button></td>
+        </tr>`;
+        }
+    }
+    document.getElementById('tbody').innerHTML = table;
+}
+
+
+
+
 // Clean data 
